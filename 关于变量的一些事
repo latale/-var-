@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>var</title>
+</head>
+<body>
+<script>
+    //关于一些变量提升
+    function Foo() {
+        sayMyName = function() {
+            console.log('july')
+        };
+    };
+    sayMyName();
+    var sayMyName = function() {
+        console.log('july1');
+    }
+    sayMyName();
+    function sayMyName() {
+        console.log('july2');
+    }
+    sayMyName();
+    Foo();
+    sayMyName();
+    //模拟
+</script>
+<script>
+    function Foo() {
+        sayMyName = function() {
+            console.log('july')
+        };
+    };
+    function sayMyName() {  //因为同名函数和变量,同名函数会提升,同名变量不会提升。
+        console.log('july2');
+    }
+    sayMyName();  //所以这里打印的是'july2';
+    var sayMyName = function() {
+        console.log('july1');
+    }
+    sayMyName(); //执行到这里,因为上面又覆盖了,所以打印的是'july1';
+    Foo();//因为执行了FOO()的函数,所以相当于把sayMyName函数重新定义
+    sayMyName(); //所以打印的是'july'
+</script>
+<script>
+    var a = 10;
+    function f1() {
+        var a = 10;
+        console.log(a);
+    }
+    f1();
+    console.log(a);
+</script>
+<script>
+    //模拟
+    var a;   //在预解析的时候,变量和函数会提升到作用域的顶层。
+    function f1() {
+        var a;
+        console.log(a);
+        a = 20;
+    }
+    a = 10;
+    f1(); //当我们执行调用f1函数的时候因为变量会提升到函数作用域的顶层,所以打印的是undefined;
+    console.log(a); //因为函数里的变量是局部变量所以不会影响到全局变量,所以这里打印的还是10;
+</script>
+<script>
+    function f1() {
+        console.log(1);
+    }
+
+    console.log(f1);   //同名函数和同名变量的时候,变量不会提升,所以打印的是f1函数体
+
+    var f1 = "july";  //当我们执行到这里的时候,我们又把函数覆盖成了一个变量.
+    console.log(f1);//所以这里打印的是"july"
+</script>
+<script>
+    var a = "july";
+    foo();
+
+    function foo() {
+        console.log(a);
+        var a = "JESSICA";
+        console.log(a);
+    }
+</script>
+<script>
+    //模拟
+    var a;  //预解析的时候,变量和函数提升到作用域的顶层。
+    function foo() {
+        var a; //变量提升到函数作用域的顶层。
+        console.log(a); //所以这里打印的是undefined;
+        a= "JESSICA"; //执行到这行的时候又给a赋值了'JESSICA';
+        console.log(a);//所以这里是'JEESICA'
+    }
+    a ='july';
+    foo(); //调用函数
+</script>
+<script>
+    function foo() {
+        if ('a' in window) {
+            var a = 10;
+        }
+        console.log(a);
+    }
+    foo();
+</script>
+<script>
+    //模拟
+    function foo() {
+        var a; //变量提升到函数顶层。
+        if ('a' in window) { //因为变量a是声明在函数作用域里,所以不在window。所以为false;'
+            a = 10;
+        }
+        console.log(a); //所以这里执行的是undefined;
+    }
+    foo(); //调用函数
+</script>
+<script>
+    if ('a' in window) {
+        var a = 10;
+    }
+    console.log(a);
+</script>
+<script>
+    var a; //js里除了函数作用域其他都是全局作用域。
+    if ('a' in window) {//所以a在window里,所以是true
+        a = 10; //a赋值为10
+    }
+    console.log(a);  //所以打印的是10
+</script>
+<script>
+    if (!'a' in window) {
+        var a = 10;
+    }
+    console.log(a);
+</script>
+<script>
+    //模拟
+    var a; //js里除了函数作用域其他都是全局作用域。
+    if (!'a' in window) { //变量a不在window里,所以是false
+        a = 10;
+    }
+    console.log(a); //所以打印的是undefined
+</script>
+<script>
+    var foo = 1;
+    function Foo() {
+        if(!foo) {
+            var foo = 10;
+        }
+        console.log(foo);
+    }
+    Foo();
+</script>
+<script>
+    //模拟
+    var foo;
+    function Foo() {
+        var foo; //变量提升到函数作用域顶层。
+        if(!foo) { //因为是去反,上面的undefined为假去反就是真,为true
+            foo = 10; //给foo赋值为10
+        }
+        console.log(foo); //打印为10
+    }
+    foo = 1;
+    Foo();
+</script>
+<script>
+    function Foo() {
+        sayMyName = function(){
+            console.log("1");
+        };
+        return this;
+    }
+    Foo.sayMyName = function() {
+        console.log("2");
+    };
+    Foo.prototype.sayMyName = function(){
+        console.log("3");
+    };
+    var sayMyName = function() {
+        console.log("4");
+    };
+    function sayMyName(){
+        console.log("5");
+    }
+    Foo.sayMyName();
+    sayMyName();
+    Foo().sayMyName();
+    sayMyName();
+    new Foo.sayMyName()
+    new Foo().sayMyName();
+    new new Foo().sayMyName();
+</script>
+<script>
+    //模拟
+    function Foo() {
+        sayMyName = function(){
+            console.log("1");
+        };
+        return this;
+    }
+    Foo.sayMyName = function() {
+        console.log("2");
+    };
+    Foo.prototype.sayMyName = function(){
+        console.log("3");
+    };
+    function sayMyName(){ //同名函数和同名变量情况下,函数提升。
+        console.log("5");
+    }
+    var sayMyName = function() {
+        console.log("4");
+    };
+    Foo.sayMyName(); //这里说的是函数的静态方法,所以打印的是2;
+    sayMyName(); //这里执行的是调用sayMYname的函数所以是4;
+    Foo().sayMyName(); //调用FOO函数,重新定义了sayMyName函数,所以打印的是'1'
+    sayMyName();//因为上面调用FOO函数,重新定义了函数,所以还是'1';
+    new Foo.sayMyName()//打印的是函数的静态方法也是2,new 2 == 2,前面的new无意义。
+    new Foo().sayMyName();//这里是new了个新对象,所以指向的是原型对象上的sayMyName方法，所以打印的是'3'
+    new new Foo().sayMyName();//等同于上面,只不过new 3 == 3，无意义。
+</script>
+</body>
+</html>
