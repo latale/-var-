@@ -1,0 +1,141 @@
+(function (window) {
+        //用于创建SQuery对象的工厂方法
+        var SQuery = function (selector) {
+            return new SQuery.fn.init(selector);
+        };
+        //修正SQuery的原型
+        SQuery.fn = SQuery.prototype = {
+            constructor:SQuery,
+            init : function (selector) {
+                //1.传入 null undefined NaN 0 false 直接返回空对象,this
+                if (!selector) {
+                    return this;
+                }
+                //判断是不是Function
+                else if (SQuery.isFunction(selector)) {
+                        SQuery.ready(selector);
+                }
+                //2.传入的是字符串,那么需要判断是选择器还是HTML代码字段
+                else if (SQuery.isString(selector)) {
+                    //如果选择器前后有空格,去掉
+                    selector = SQuery.trim(selector);
+                    if (SQuery.isHTML(selector)){
+                        //先手动创建一个DOM元素
+                        var temp = document.createElement('div');
+                        temp.innerHTML = selector;
+                        // console.log(temp)
+                        //     for(var i  = 0; i<temp.children.length; i++) {
+                        //         this[i] = temp.children[i]
+                        //     }
+                        //     this.length = temp.children.length;
+                        // }
+                        [].push.apply(this, temp.children)
+                        // this.length = temp.children.length;
+                    } else {
+                        //如果是选择器
+                        var nodes = document.querySelectorAll(selector);
+                        // for(var i = 0; i<nodes.length; i++) {
+                        //     this[i] = nodes[i];
+                        // }
+                        // this.length = nodes.length;
+                        // console.log(nodes);
+                        [].push.apply(this, nodes);
+                        // Array.prototype.push.apply(this,nodes);
+                    }
+                } else if (SQuery.isArrayOf(selector)) {
+                    //如果是真,转真,如果是假转真
+                    selector = [].slice(selector);
+                    [].push.apply(this,selector);
+                }else{
+                    this[0] = selector;
+                    this.length = 1;
+                }
+            }
+        };
+        // console.log(SQuery.fn.init)
+        SQuery.fn.init.prototype = SQuery.fn;
+        //将内部创建的SQuery暴露给window用
+        window.SQuery = window.$ = SQuery;
+        SQuery.extend = SQuery.prototype.extend = function (obj) {
+            for(var key in obj) {
+                this[key] = obj[key];
+            }
+        };
+        //把方法集中在一起管理
+        SQuery.extend({
+            //判断是否是字符串
+            isString : function (str) {
+            return typeof str === 'string';
+        },
+        //判断是否是HTML代码片段
+            isHTML : function (html) {
+            if(!SQuery.isString(html)) {
+                return false;
+            };
+            return html.charAt(0) === '<' && html.charAt(html.length - 1) === '>' && html.length >= 3
+        },
+            trim : function (str) {
+            if (!SQuery.isString(str)) {
+                return str;
+            };
+            //判断浏览器是否支持trim方法。
+            if (str.trim) {
+                return str.trim();
+            }else{
+                return str.replace(/^\s+|$\s+/g,'');
+            }
+        },
+        //判断真假数组
+            isArrayOf : function (arr) {
+            if (typeof arr === 'object' && arr.window !== window) {
+                //排除非对象和window
+                if (!SQuery.isObject(arr) || SQuery.isWindow(arr)) {
+                    return false;
+                }
+                //判断是否是真数组
+                else if (Object.prototype.toString.call(arr) === '[Object Array]') {
+                    return true;
+                }
+                //判断是否是伪数组
+                else if ('length' in arr && arr.length == 0 || arr.length - 1 in arr) {
+                    return true;
+                }else {
+                    return false;
+                }
+            }
+        },
+            //判断是不是Function
+            isFunction:function (fn) {
+                return typeof fn ==='function';
+            },
+            ready:function (fn) {
+                //处理传入函数的情况
+                //直接判断当前的document.readystage的状态
+                if (document.readyState ==='complete') {
+                    fn();
+                    //判断浏览器是否支持addEvnentListener
+                }else if(document.addEventListener) {
+                    document.addEventListener('DOMContentLoaded',fn);
+                }else {
+                    document.attachEvent('onreadystatechange', function () {
+                        if (document.readyState === 'complete') {
+                            fn();
+                        }
+                    })
+                    }
+                },
+            //判断是否是window
+            isWindow:function (w) {
+                return w.window === window;
+            },
+            //判断是否是obj
+            isObject:function (obj) {
+                //对null进行处理
+                if (obj == null) {
+                    return false;
+                }
+                return typeof obj === 'object';
+            }
+        })
+    }
+)(window)
